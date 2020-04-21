@@ -2,6 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../Github滚动开发中/.idea/Github滚动开发中.iml" filepath="$PROJECT_DIR$/../Github滚动开发中/.idea/Github滚动开发中.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Python_learning_codes/.idea/Python_learning_codes.iml" filepath="$PROJECT_DIR$/../Python_learning_codes/.idea/Python_learning_codes.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../report_generator/.idea/report_generator.iml" filepath="$PROJECT_DIR$/../report_generator/.idea/report_generator.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/tables_add_together.iml" filepath="$PROJECT_DIR$/.idea/tables_add_together.iml" />
     </modules>
   </component>

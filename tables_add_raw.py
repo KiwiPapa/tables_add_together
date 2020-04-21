@@ -3,7 +3,6 @@ import os, openpyxl
 import pandas as pd
 from changeOffice import Change
 
-# 王淑洁
 splicing_Depth = float(input('请输入合并井段深度点（最好选在同一个固井质量相同的段，hint:1965）'))
 
 # 转换文件，可能转出的文件读写空值，那么还得利用WPS或者LIBRE OFFICE
@@ -149,6 +148,6 @@ wb.save('解释成果表-1统.xlsx')
 
 # 单层统计表保存为Excel
 df_all.drop(['井段Start', '井段End'], axis=1, inplace=True)
-writer = pd.ExcelWriter('output.xlsx')
+writer = pd.ExcelWriter('单层评价表—合并.xlsx')
 df_all.to_excel(writer, 'Sheet1')
 writer.save()

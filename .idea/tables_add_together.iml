@@ -4,5 +4,8 @@
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="Github滚动开发中" />
+    <orderEntry type="module" module-name="report_generator" />
+    <orderEntry type="module" module-name="Python_learning_codes" />
   </component>
 </module>
