@@ -149,7 +149,7 @@ class AddTables(QWidget):
         df_all.drop(len(df_temp1), inplace=True)
         df_all.set_index(["解释\n序号"], inplace=True)
         df_all.reset_index(drop=True, inplace=True)  # 重新设置列索引
-        # print(df_all)
+        # print(df_all.columns)
 
         #################################################################
         # 在指定深度段统计
@@ -164,17 +164,23 @@ class AddTables(QWidget):
         if (calculation_End <= float(end_Evaluation)) & (calculation_Start >= float(start_Evaluation)):
             df_temp = df_all.loc[(df_all['井段Start'] >= calculation_Start) & (df_all['井段Start'] <= calculation_End), :]
             # 获取起始深度到第一层井段底界的结论
-            df_temp1 = df_all.loc[(df_all['井段Start'] <= calculation_Start), :]
-            start_to_upper_result = df_temp1.loc[len(df_temp1) - 1, '结论']
+            df_temp_start_to_first_layer = df_all.loc[(df_all['井段Start'] <= calculation_Start), :]
+            start_to_upper_result = df_temp_start_to_first_layer.loc[len(df_temp_start_to_first_layer) - 1, '结论']
+            # 获取calculation_Start所在段的声幅值
+            df_temp_calculation_Start = df_all.loc[(df_all['井段Start'] <= calculation_Start) & (df_all['井段End'] >= calculation_Start), :]
             # 补充储层界到井段的深度
             x, y = df_temp.shape
+            print(x)
+            print(y)
             df_temp = df_temp.reset_index()
             df_temp.drop(['index'], axis=1, inplace=True)
-            if x >= 1:
+            if x > 1:
                 first_layer_start = df_temp.loc[0, '井段Start']
-                upper = pd.DataFrame({'序号': '空',
-                                      '井段': '空',
-                                      '厚度': '空',
+                upper = pd.DataFrame({'井 段\n (m)': ''.join([str(calculation_Start), '-', str(first_layer_start)]),
+                                      '厚 度\n (m)': first_layer_start - calculation_Start,
+                                      '最大声幅\n （%）': df_temp_calculation_Start.loc[0, '最大声幅\n （%）'],
+                                      '最小声幅\n  (%)': df_temp_calculation_Start.loc[0, '最小声幅\n  (%)'],
+                                      '平均声幅\n  （%）': df_temp_calculation_Start.loc[0, '平均声幅\n  （%）'],
                                       '结论': start_to_upper_result,
                                       '井段Start': calculation_Start,
                                       '井段End': first_layer_start},
@@ -182,17 +188,27 @@ class AddTables(QWidget):
                 df_temp.loc[len(df_temp) - 1, '井段End'] = calculation_End
                 df_temp = pd.concat([upper, df_temp], ignore_index=True)
                 # df_temp = df_temp.append(new, ignore_index=True)  # ignore_index=True,表示不按原来的索引，从0开始自动递增
-                # print(df_temp)
+                df_temp.loc[:, "重计算厚度"] = df_temp.apply(get_thickness, axis=1)
+                # 修改df_temp的最末一行
+                df_temp.loc[len(df_temp) - 1, '井 段\n (m)'] = ''.join([str(df_temp.loc[len(df_temp) - 1, '井段Start']), \
+                                                                      '-', str(df_temp.loc[len(df_temp) - 1, '井段End'])])
+                df_temp.loc[len(df_temp) - 1, '厚 度\n (m)'] = df_temp.loc[len(df_temp) - 1, '重计算厚度']
             else:  # 储层包含在一个井段内的情况
-                df_temp = pd.DataFrame({'序号': '空',
-                                        '井段': '空',
-                                        '厚度': '空',
+                df_temp = pd.DataFrame({'井 段\n (m)': ''.join([str(calculation_Start), '-', str(calculation_End)]),
+                                        '厚 度\n (m)': calculation_End - calculation_Start,
+                                        '最大声幅\n （%）': df_temp_calculation_Start.loc[0, '最大声幅\n （%）'],
+                                        '最小声幅\n  (%)': df_temp_calculation_Start.loc[0, '最小声幅\n  (%)'],
+                                        '平均声幅\n  （%）': df_temp_calculation_Start.loc[0, '平均声幅\n  （%）'],
                                         '结论': start_to_upper_result,
                                         '井段Start': calculation_Start,
                                         '井段End': calculation_End},
                                        index=[1])  # 自定义索引为：1 ，这里也可以不设置index
-            df_temp.loc[:, "重计算厚度"] = df_temp.apply(get_thickness, axis=1)
-            # print(df_temp)
+                df_temp.loc[:, "重计算厚度"] = df_temp.apply(get_thickness, axis=1)
+                # 修改df_temp的最末一行
+                df_temp.loc[len(df_temp), '井 段\n (m)'] = ''.join([str(df_temp.loc[len(df_temp), '井段Start']), \
+                                                                      '-', str(df_temp.loc[len(df_temp), '井段End'])])
+                df_temp.loc[len(df_temp), '厚 度\n (m)'] = df_temp.loc[len(df_temp), '重计算厚度']
+            print(df_temp)
             ratio_Series = df_temp.groupby(by=['结论'])['重计算厚度'].sum() / df_temp['重计算厚度'].sum() * 100
             if ratio_Series.__len__() == 2:
                 if '好' not in ratio_Series:
@@ -211,6 +227,13 @@ class AddTables(QWidget):
                 elif ('中' not in ratio_Series) & ('差' not in ratio_Series):
                     ratio_Series = ratio_Series.append(pd.Series({'中': 0}))
                     ratio_Series = ratio_Series.append(pd.Series({'差': 0}))
+        # 保存指定起始截止深度的单层统计表
+        df_temp.drop(['井段Start', '井段End', '重计算厚度'], axis=1, inplace=True)
+        df_temp.reset_index(drop=True, inplace=True)  # 重新设置列索引
+        df_temp.index = df_temp.index + 1
+        writer = pd.ExcelWriter('.\\#DataOut\\单层评价表—' + str(calculation_Start) + '-' + str(calculation_End) + 'm.xlsx')
+        df_temp.to_excel(writer, 'Sheet1')
+        writer.save()
 
         # 统计结论
         actual_Hao = str(round((calculation_End - calculation_Start) * (ratio_Series['好'] / 100), 2))
@@ -234,12 +257,12 @@ class AddTables(QWidget):
         sheet['D6'] = Cha_Ratio
 
         mkdir('.\\#DataOut')
-        wb.save('.\\#DataOut\\解释成果表-1统.xlsx')
+        wb.save('.\\#DataOut\\水泥胶结统计表—' + str(calculation_Start) + '-' + str(calculation_End) + 'm.xlsx')
 
         # 单层统计表保存为Excel
         df_all.drop(['井段Start', '井段End'], axis=1, inplace=True)
         df_all.index = df_all.index + 1
-        writer = pd.ExcelWriter('.\\#DataOut\\单层评价表—合并.xlsx')
+        writer = pd.ExcelWriter('.\\#DataOut\\单层评价表—' + str(start_Evaluation) + '-' + str(end_Evaluation) + 'm.xlsx')
         df_all.to_excel(writer, 'Sheet1')
         writer.save()
 
