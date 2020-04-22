@@ -91,13 +91,15 @@ class AddTables(QWidget):
         splicing_Depth = float(self.lineEdit1.text())
 
         fileDir1 = self.tx1.toPlainText()
+        fileDir1 = fileDir1.replace('file:///', '')
         fileDir2 = self.tx2.toPlainText()
+        fileDir2 = fileDir2.replace('file:///', '')
 
         df1 = pd.read_excel(fileDir1, header=2, index='序号')
         df1.drop([0], inplace=True)
         df1.loc[:, '井 段\n (m)'] = df1['井 段\n (m)'].str.replace(' ', '')  # 消除数据中空格
-        if len(df1) % 2 != 0:#如果有奇数行则删除最后一行
-            df1.drop([len(df1)], inplace=True)
+        # if len(df1) % 2 == 0:#如果len(df1)为偶数需要删除最后一行NaN，一行的情况不用删
+        #     df1.drop([len(df1)], inplace=True)
         df1['井段Start'] = df1['井 段\n (m)'].map(lambda x: x.split("-")[0])
         df1['井段End'] = df1['井 段\n (m)'].map(lambda x: x.split("-")[1])
         # 表格数据清洗
@@ -112,8 +114,8 @@ class AddTables(QWidget):
         df2 = pd.read_excel(fileDir2, header=2, index='序号')
         df2.drop([0], inplace=True)
         df2.loc[:, '井 段\n (m)'] = df2['井 段\n (m)'].str.replace(' ', '')  # 消除数据中空格
-        if len(df2) % 2 != 0:  # 如果有奇数行则删除最后一行
-            df2.drop([len(df2)], inplace=True)
+        # if len(df2) % 2 == 0:#如果len(df2)为偶数需要删除最后一行NaN，一行的情况不用删
+        #     df2.drop([len(df2)], inplace=True)
         df2['井段Start'] = df2['井 段\n (m)'].map(lambda x: x.split("-")[0])
         df2['井段End'] = df2['井 段\n (m)'].map(lambda x: x.split("-")[1])
         # 表格数据清洗
@@ -131,8 +133,8 @@ class AddTables(QWidget):
         # 对df_all进行操作
         df_all.loc[len(df_temp1) - 1, '井 段\n (m)'] = ''.join([str(df_all.loc[len(df_temp1) - 1, '井段Start']), '-', \
                                                               str(df_all.loc[len(df_temp1), '井段End'])])
-        df_all.loc[len(df_temp1) - 1, '厚 度\n (m)'] = df_all.loc[len(df_temp1), '井段End'] - df_all.loc[
-            len(df_temp1) - 1, '井段Start']
+        df_all.loc[len(df_temp1) - 1, '厚 度\n (m)'] = df_all.loc[len(df_temp1), '井段End'] - \
+                                                     df_all.loc[len(df_temp1) - 1, '井段Start']
         df_all.loc[len(df_temp1) - 1, '最大声幅\n （%）'] = max(df_all.loc[len(df_temp1), '最大声幅\n （%）'], \
                                                              df_all.loc[len(df_temp1) - 1, '最大声幅\n （%）'])
         df_all.loc[len(df_temp1) - 1, '最小声幅\n  (%)'] = min(df_all.loc[len(df_temp1), '最小声幅\n  (%)'], \
@@ -162,6 +164,7 @@ class AddTables(QWidget):
             start_to_upper_result = df_temp_start_to_first_layer.loc[len(df_temp_start_to_first_layer) - 1, '结论']
             # 获取calculation_Start所在段的声幅值
             df_temp_calculation_Start = df_all.loc[(df_all['井段Start'] <= calculation_Start) & (df_all['井段End'] >= calculation_Start), :]
+            df_temp_calculation_Start.reset_index(drop=True, inplace=True)  # 重新设置列索引#防止若截取中段，index不从0开始的bug
             # 补充储层界到井段的深度
             x, y = df_temp.shape
             df_temp = df_temp.reset_index()
