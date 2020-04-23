@@ -1,4 +1,4 @@
-#conding=utf-8
+# conding=utf-8
 
 import sys
 
@@ -28,11 +28,12 @@ def mkdir(path):
         print(path + ' 目录已存在')
         return False
 
+
 class AddTables(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
-    
+
     def initUI(self):
         self.setGeometry(300, 300, 500, 280)
         self.setWindowTitle('单层评价表合并并统计小程序')
@@ -72,21 +73,21 @@ class AddTables(QWidget):
         self.bt1.clicked.connect(self.openfiles1)
         self.bt3.clicked.connect(self.openfiles2)
         self.bt2.clicked.connect(self.run)
-        
+
         self.show()
 
     def openfiles1(self):
-        fnames = QFileDialog.getOpenFileNames(self, '打开第一个文件', './')#注意这里返回值是元组
+        fnames = QFileDialog.getOpenFileNames(self, '打开第一个文件', './')  # 注意这里返回值是元组
         if fnames[0]:
             for fname in fnames[0]:
                 self.tx1.append(fname)
 
     def openfiles2(self):
-        fnames = QFileDialog.getOpenFileNames(self, '打开第二个文件', './')#注意这里返回值是元组
+        fnames = QFileDialog.getOpenFileNames(self, '打开第二个文件', './')  # 注意这里返回值是元组
         if fnames[0]:
             for fname in fnames[0]:
                 self.tx2.append(fname)
-            
+
     def run(self):
         splicing_Depth = float(self.lineEdit1.text())
 
@@ -136,9 +137,9 @@ class AddTables(QWidget):
         df_all.loc[len(df_temp1) - 1, '厚 度\n (m)'] = df_all.loc[len(df_temp1), '井段End'] - \
                                                      df_all.loc[len(df_temp1) - 1, '井段Start']
         df_all.loc[len(df_temp1) - 1, '最大声幅\n （%）'] = max(df_all.loc[len(df_temp1), '最大声幅\n （%）'], \
-                                                             df_all.loc[len(df_temp1) - 1, '最大声幅\n （%）'])
+                                                          df_all.loc[len(df_temp1) - 1, '最大声幅\n （%）'])
         df_all.loc[len(df_temp1) - 1, '最小声幅\n  (%)'] = min(df_all.loc[len(df_temp1), '最小声幅\n  (%)'], \
-                                                              df_all.loc[len(df_temp1) - 1, '最小声幅\n  (%)'])
+                                                           df_all.loc[len(df_temp1) - 1, '最小声幅\n  (%)'])
         df_all.loc[len(df_temp1) - 1, '平均声幅\n  （%）'] = np.add(df_all.loc[len(df_temp1), '平均声幅\n  （%）'], \
                                                               df_all.loc[len(df_temp1) - 1, '平均声幅\n  （%）']) / 2
 
@@ -163,7 +164,8 @@ class AddTables(QWidget):
             df_temp_start_to_first_layer = df_all.loc[(df_all['井段Start'] <= calculation_Start), :]
             start_to_upper_result = df_temp_start_to_first_layer.loc[len(df_temp_start_to_first_layer) - 1, '结论']
             # 获取calculation_Start所在段的声幅值
-            df_temp_calculation_Start = df_all.loc[(df_all['井段Start'] <= calculation_Start) & (df_all['井段End'] >= calculation_Start), :]
+            df_temp_calculation_Start = df_all.loc[(df_all['井段Start'] <= calculation_Start) & (
+                        df_all['井段End'] >= calculation_Start), :]
             df_temp_calculation_Start.reset_index(drop=True, inplace=True)  # 重新设置列索引#防止若截取中段，index不从0开始的bug
             # 补充储层界到井段的深度
             x, y = df_temp.shape
@@ -207,8 +209,8 @@ class AddTables(QWidget):
                                        index=[1])  # 自定义索引为：1 ，这里也可以不设置index
                 df_temp.loc[:, "重计算厚度"] = df_temp.apply(get_thickness, axis=1)
                 # 修改df_temp的最末一行
-                df_temp.loc[len(df_temp), '井 段\n (m)'] = ''.join([str(df_temp.loc[len(df_temp), '井段Start']), \
-                                                                      '-', str(df_temp.loc[len(df_temp), '井段End'])])
+                df_temp.loc[len(df_temp), '井 段\n (m)'] = ''.join([str(df_temp.loc[len(df_temp), '井段Start']),
+                                                                  '-', str(df_temp.loc[len(df_temp), '井段End'])])
                 df_temp.loc[len(df_temp), '厚 度\n (m)'] = df_temp.loc[len(df_temp), '重计算厚度']
             print(df_temp)
             ratio_Series = df_temp.groupby(by=['结论'])['重计算厚度'].sum() / df_temp['重计算厚度'].sum() * 100
@@ -265,10 +267,10 @@ class AddTables(QWidget):
         # 单层统计表保存为Excel
         df_all.drop(['井段Start', '井段End'], axis=1, inplace=True)
         df_all.index = df_all.index + 1
-        writer = pd.ExcelWriter('.\\#DataOut\\单层评价表(合并)(' + str(start_Evaluation) + '-' + str(end_Evaluation) + 'm).xlsx')
+        writer = pd.ExcelWriter(
+            '.\\#DataOut\\单层评价表(合并)(' + str(start_Evaluation) + '-' + str(end_Evaluation) + 'm).xlsx')
         df_all.to_excel(writer, 'Sheet1')
         writer.save()
-
 
 
 if __name__ == '__main__':
