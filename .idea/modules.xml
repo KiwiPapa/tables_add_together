@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://E:/GitHub_projects/.idea/GitHub_projects.iml" filepath="E:/GitHub_projects/.idea/GitHub_projects.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../GitHub_projects/.idea/GitHub_projects.iml" filepath="$PROJECT_DIR$/../GitHub_projects/.idea/GitHub_projects.iml" />
+      <module fileurl="file://$USER_HOME$/Desktop/PyOpenGL-Tutorial/.idea/PyOpenGL-Tutorial.iml" filepath="$USER_HOME$/Desktop/PyOpenGL-Tutorial/.idea/PyOpenGL-Tutorial.iml" />
+      <module fileurl="file://$USER_HOME$/Desktop/PyOpenGL_tutorials/.idea/PyOpenGL_tutorials.iml" filepath="$USER_HOME$/Desktop/PyOpenGL_tutorials/.idea/PyOpenGL_tutorials.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/tables_add_together.iml" filepath="$PROJECT_DIR$/.idea/tables_add_together.iml" />
     </modules>
   </component>

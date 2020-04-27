@@ -452,9 +452,9 @@ class AddTables(QWidget):
         Cha_Ratio = str(round(ratio_Series['差'], 2))
 
         PATH = '.\\resources\\'
-        wb = openpyxl.load_workbook(PATH + '1统模板.xlsx')
+        wb = openpyxl.load_workbook(PATH + '2统模板.xlsx')
         sheet = wb[wb.sheetnames[0]]
-        sheet['A1'] = ''.join(['第一界面水泥胶结统计表（', str(calculation_Start), '-', str(calculation_End), 'm）'])
+        sheet['A1'] = ''.join(['第二界面水泥胶结统计表（', str(calculation_Start), '-', str(calculation_End), 'm）'])
         sheet['C4'] = actual_Hao
         sheet['D4'] = Hao_Ratio
         sheet['C5'] = actual_Zhong
