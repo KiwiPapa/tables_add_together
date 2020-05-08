@@ -193,7 +193,8 @@ class AddTables(QWidget):
             x, y = df_temp.shape
             df_temp = df_temp.reset_index()
             df_temp.drop(['index'], axis=1, inplace=True)
-            first_layer_start = df_temp.loc[0, '井段Start']
+            if x != 0:# 防止df_temp为空时，loc报错的bug
+                first_layer_start = df_temp.loc[0, '井段Start']
             if x > 1 and first_layer_start != calculation_Start:
                 upper = pd.DataFrame({'井 段\n (m)': ''.join([str(calculation_Start), '-', str(first_layer_start)]),
                                       '厚 度\n (m)': first_layer_start - calculation_Start,
@@ -378,7 +379,8 @@ class AddTables(QWidget):
             x, y = df_temp.shape
             df_temp = df_temp.reset_index()
             df_temp.drop(['index'], axis=1, inplace=True)
-            first_layer_start = df_temp.loc[0, '井段Start']
+            if x != 0:  # 防止df_temp为空时，loc报错的bug
+                first_layer_start = df_temp.loc[0, '井段Start']
             if x > 1 and first_layer_start != calculation_Start:
                 upper = pd.DataFrame({'井 段\n (m)': ''.join([str(calculation_Start), '-', str(first_layer_start)]),
                                       '厚 度\n (m)': first_layer_start - calculation_Start,
