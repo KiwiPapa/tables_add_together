@@ -1,9 +1,9 @@
-# conding=utf-8
+# -*- coding: utf-8 -*-
 
 import sys
 
 from PyQt5.QtWidgets import QWidget, QApplication, QPushButton, QColorDialog, QFontDialog, \
-    QTextEdit, QFileDialog, QDialog, QLineEdit, QLabel, QRadioButton
+    QTextEdit, QFileDialog, QDialog, QLineEdit, QLabel, QRadioButton, QMessageBox
 from PyQt5.QtPrintSupport import QPageSetupDialog, QPrintDialog, QPrinter
 from PyQt5 import QtCore, QtGui, QtWidgets
 import numpy as np
@@ -36,7 +36,7 @@ class AddTables(QWidget):
 
     def initUI(self):
         self.setGeometry(300, 300, 500, 280)
-        self.setWindowTitle('单层评价表合并并统计小程序')
+        self.setWindowTitle('单层评价表合并统计程序')
 
         self.label1 = QLabel(self)
         self.label1.setGeometry(250, 5, 60, 20)
@@ -164,7 +164,7 @@ class AddTables(QWidget):
                                                            df_all.loc[len(df_temp1) - 1, '最小声幅\n  (%)'])
         df_all.loc[len(df_temp1) - 1, '平均声幅\n  （%）'] = np.add(df_all.loc[len(df_temp1), '平均声幅\n  （%）'], \
                                                               df_all.loc[len(df_temp1) - 1, '平均声幅\n  （%）']) / 2
-
+        df_all.loc[len(df_temp1) - 1, '井段End'] = df_all.loc[len(df_temp1), '井段End']  # 解决后续重计算厚度计算bug
         df_all.drop(len(df_temp1), inplace=True)
         df_all.set_index(["解释\n序号"], inplace=True)
         df_all.reset_index(drop=True, inplace=True)  # 重新设置列索引
@@ -193,7 +193,7 @@ class AddTables(QWidget):
             x, y = df_temp.shape
             df_temp = df_temp.reset_index()
             df_temp.drop(['index'], axis=1, inplace=True)
-            if x != 0:# 防止df_temp为空时，loc报错的bug
+            if x != 0:  # 防止df_temp为空时，loc报错的bug
                 first_layer_start = df_temp.loc[0, '井段Start']
             if x > 1 and first_layer_start != calculation_Start:
                 upper = pd.DataFrame({'井 段\n (m)': ''.join([str(calculation_Start), '-', str(first_layer_start)]),
@@ -254,6 +254,7 @@ class AddTables(QWidget):
                 elif ('中' not in ratio_Series) & ('差' not in ratio_Series):
                     ratio_Series = ratio_Series.append(pd.Series({'中': 0}))
                     ratio_Series = ratio_Series.append(pd.Series({'差': 0}))
+        # print(ratio_Series)
 
         # 统计结论
         actual_Hao = str(round((calculation_End - calculation_Start) * (ratio_Series['好'] / 100), 2))
@@ -294,6 +295,8 @@ class AddTables(QWidget):
             '.\\#DataOut\\单层评价表(合并)(' + str(start_Evaluation) + '-' + str(end_Evaluation) + 'm).xlsx')
         df_all.to_excel(writer, 'Sheet1')
         writer.save()
+
+        QMessageBox.information(self, "提示", "运行完毕，请查看#DataOut文件夹")
 
     def run2(self):
         splicing_Depth = float(self.lineEdit1.text())
@@ -483,6 +486,8 @@ class AddTables(QWidget):
             '.\\#DataOut\\单层评价表(合并)(' + str(start_Evaluation) + '-' + str(end_Evaluation) + 'm).xlsx')
         df_all.to_excel(writer, 'Sheet1')
         writer.save()
+
+        QMessageBox.information(self, "提示", "运行完毕，请查看#DataOut文件夹")
 
 
 if __name__ == '__main__':
