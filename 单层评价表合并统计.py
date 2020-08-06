@@ -1,3 +1,4 @@
+# 这是利用visual studio的git测试
 # -*- coding: utf-8 -*-
 
 import sys
